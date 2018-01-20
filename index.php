@@ -11,4 +11,7 @@
     </head>
     <body>
     </body>
+	<footer>
+		<p><?php echo date('Y') copyright.?></p>
+	</footer>
 </html>
