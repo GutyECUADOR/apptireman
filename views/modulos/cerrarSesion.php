@@ -1,5 +1,6 @@
 <?php
+require_once './config/global.php';
 
 session_destroy();
-header("Location: index.php?&action=login");  
+header("Location: index.php?&action=inicio");  
 

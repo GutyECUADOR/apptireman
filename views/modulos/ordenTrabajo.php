@@ -1,10 +1,10 @@
 <?php 
-    if (!isset($_SESSION["usuarioActivo"])){
-           header("Location:index.php?&action=inicio");  
-        }  
-        
-    $ordentrabajo = new models\OrdentClass();
-    
+    $licencia = new controllers\licenciaController();
+    $licencia->enableSegurity('ordenTrabajo');
+
+    $ordentrabajo = new models\OrdentModel();
+    $maincontroller = new controllers\mainController();
+    $maincontroller->registrarOrdenTrabajo();
 ?>
 
 <div class="container">
@@ -14,28 +14,28 @@
             <div class="card z-depth-2">
               <div class="card-content">
                 <span class="card-title center-align"><h5>Nueva Orden de Trabajo</h5></span>
-                    <form autocomplete="off">
+                <form action="" method="POST" name="ordenTrabajo" autocomplete="off"  enctype='multipart/form-data'>
                         <div class="row">
                             <div class="col s12 m12 l12">
                                 <h5>Información Principal</h5>
                                 <div class="input-field col s12 m6 l6">
-                                <select>
-                                    <option value="" disabled selected>Seleccione por favor</option>
+                                <select name="seleccion_asesor" id="seleccion_asesor" required>
+                                    <option value="" disabled selected>Seleccione por favor:</option>
                                     <?PHP
                                         $ordentrabajo->getAsesores();
                                     ?>
                                 </select>
-                                <label>Indique un asesor:</label>
+                                <label>Indique un asesor: (Campo Obligatorio)</label>
                                 </div>
 
                                 <div class="input-field col s12 m6 l6">
-                                <select class="centrado" name="seleccion_mecanico" id="seleccion_mecanico" required>
+                                <select name="seleccion_mecanico" id="seleccion_mecanico" required>
                                     <option value="" disabled selected>Seleccione por favor</option>
                                     <?PHP
                                         $ordentrabajo->getMecanicos();
                                     ?>
                                 </select>
-                                <label>Indique un mecánico:</label>
+                                <label>Indique un mecánico: (Campo Obligatorio)</label>
                                 </div>
                             </div>    
 
@@ -74,14 +74,19 @@
                                 <!-- Fila 3-->
 
                                 <div class="input-field col s12 m6 l9">
-                                     <select class="center-align browser-default" name="seleccion_vehiculo" id="seleccion_vehiculo" required>
-                                      <option value="" >Seleccione vehiculo</option>
+                                    <select name="seleccion_vehiculo" id="seleccion_vehiculo" required>
+                                    <option value="" disabled selected>Seleccione por favor</option>
+                                    <?PHP
+                                        
+                                    ?>
                                     </select>
-                                   
+                                    <label>Indique un vehiculo: (Campo Obligatorio)</label>
+                                    
+                                    
                                 </div>
 
                                 <div class="input-field col s12 m12 l3">
-                                    <input type="number" name="txt_kilometraje" id="txt_kilometraje">
+                                    <input type="number" name="txt_kilometraje" data-length="7" maxlength="7" id="txt_kilometraje" required>
                                     <label for="txt_kilometraje" data-error="No cumple" >Kilometraje</label>
                                 </div>
                             </div>
@@ -136,12 +141,14 @@
                                 
                             </div>     
                             
+                            
+                            
                             <div class="col s12 m12 l12">
                                 <h5>Evidencia de Estado</h5>
                                 <div class="file-field input-field">
                                     <div class="btn">
                                       <span>Fotografia</span>
-                                      <input type="file" name="input_imagenes[]" accept="image/*" multiple>
+                                      <input type="file" name="input_imagenes[]" id="input_imagenes"  accept="image/*" multiple>
                                     </div>
                                     <div class="file-path-wrapper">
                                       <input class="file-path validate" type="text" placeholder="Maximo 10Mb">
@@ -150,32 +157,81 @@
                             </div>
                             
                             <div class="col s12 m12 l12">
-                                <h5>Neumaticos</h5>
+                                <h5>Neumaticos: </h5>
                                 
-                                <div class="input-field col s12 m6 l2">
-                                    <input type="text" class="center-align" name="txt_codLlantas[]" id="txt_codLlantas" value="-" readonly>
-                                    <label for="txt_codLlantas" data-error="No cumple" >Código</label>
+                                <div class="input-field col s12 m12 l2">
+                                    <select name="seleccion_marcaLlanta[]" class="rowllantas" id="seleccion_marcaLlanta" onchange="ajax_getModelosLlantas(this)">
+                                    <option value="" disabled selected>Seleccione:</option>
+                                    <?PHP
+                                        $ordentrabajo->getMarcasLlntas();
+                                    ?>
+                                    </select>
+                                    <label>Marca: </label>
                                 </div>
                                 
-                                <div class="input-field col s12 m6 l5">
-                                    <input type="text" name="txt_llantas[]" id="txt_llantas" placeholder="Indique item" class="center-align uppercase">
-                                    <label for="txt_llantas" data-error="No cumple" >Neumaticos</label>
+                                <div class="input-field col s12 m6 l3">
+                                    <select name="seleccion_modeloLlanta[]" id="seleccion_modeloLlanta" onchange="ajax_getMedidasLlantas(this)">
+                                    <option value="" disabled selected>Seleccione por favor:</option>
+                                   
+                                    </select>
+                                    <label>Modelo: </label>
+                                </div>
+                                
+                                <div class="input-field col s12 m6 l3">
+                                    <select name="seleccion_medidaLlanta[]" id="seleccion_medidaLlanta" onchange="ajax_getValorLlantas(this)">
+                                    <option value="" disabled selected>Seleccione por favor:</option>
+                                    
+                                    </select>
+                                    <label>Medida: </label>
                                 </div>
 
-                                <div class="input-field col s12 m6 l2">
-                                    <input type="number" name="txt_cantidadLlantas[]" id="txt_cantidadLlantas" class="center-align" value="0">
+                                <div class="input-field col s12 m6 l1">
+                                    <input type="number" name="txt_cantidadLlantas[]" id="txt_cantidadLlantas" class="center-align rowcantidadLlantas" value="0" onclick="extra_llanta(this);calcular_total_llantas()" onkeyup="extra_llanta(this);calcular_total_llantas()">
                                     <label for="txt_cantidadLlantas" data-error="No cumple">Cantidad</label>
                                 </div>
 
                                 <div class="input-field col s12 m6 l2">
-                                    <input type="text" class="importe_linea center-align" name="txt_valorLlantas[]" id="txt_valorLlantas" value="0" onkeyup="calcular_total()">
+                                    <input type="number" step="0.01" class="importe_linea_llanta center-align" name="txt_valorLlantas[]" id="txt_valorLlantas" value="0" onkeyup="calcular_total_llantas()" onclick="calcular_total_llantas()">
+                                    <input type="hidden" name="hidden_txt_CodLlantas[]">
+                                    <input type="hidden" name="hidden_txt_valorLlantas[]">
                                     <label for="txt_valorLlantas" data-error="No cumple">Valor</label>
                                 </div>
                                 
-                                <div class="input-field col s12 m12 l1 center-align">
-                                    <a class="btn-floating waves-effect waves-light red"><i class="material-icons">delete_forever</i></a>
+                            </div>  
+                            
+                            <!-- Contenedor de Controles ajax-->
+                                
+                            <div class="result_addLlantas"> 
+                            </div>
+                            
+                            
+                            <div class="col">
+                                <h5>Valores a cancelar por neumáticos:</h5>
+                                
+                                <div class="input-field col s12 l4 offset-l7">
+                                    <label class="label">Subtotal</label>
+                                    <input type="text" class="center-align" id="txt_subtotal_llantas" name="txt_subtotal_llantas" value="0" onkeyup="calcular_total_llantas()" readonly>
                                 </div>
                                 
+                                <div class="input-field col s12 l4 offset-l7">
+                                    <label class="label">IVA</label>
+                                    <input type="text" class="center-align" id="txt_iva_llantas" name="txt_iva_llantas" value="0" onkeyup="calcular_total_llantas()" readonly>
+                                </div>
+                                
+                                <div class="input-field col s12 l4 offset-l7">
+                                    <label class="label">Total</label>
+                                    <input type="text" class="center-align" id="txt_total_llantas" name="txt_total_llantas" value="0" onkeyup="calcular_total_llantas()" readonly>
+                                </div>
+                                
+                                 <div class="input-field col s12 l4 offset-l7">
+                                    <label class="label">Descuento (%)</label>
+                                    <input type="number" class="center-align subtotales" id="txt_descuento_llantas"  name="txt_descuento_llantas" min="0" max="100" value="0" onclick="calcular_total_llantas()" onchange="calcular_total_llantas()" onkeyup="calcular_total_llantas()">
+                                </div>
+                                
+                                <div class="input-field col s12 l4 offset-l7">
+                                    <label class="label">A pagar por llantas</label>
+                                    <input type="text" class="center-align subtotales" id="txt_apagar_llantas"  name="txt_apagar_llantas" value="0" readonly required="true">
+                                </div>
                             </div>  
                             
                             
@@ -187,18 +243,18 @@
                                 </div>    
                                        
                                 <div class="input-field col s12 m6 l5">
-                                    <input type="text" id="testinput1" class="autocomplete center-align uppercase rowproducto" name="txt_detalle_product[]" placeholder="Indique item" onchange="ajaxvalidacod_producto(this);calcular_total()">
+                                    <input type="text" id="testinput1" class="autocomplete center-align uppercase rowproducto" name="txt_detalle_product[]" placeholder="Indique item" onchange="ajaxvalidacod_producto(this);calcular_total_productos()">
                                     <label for="txt_detalle_product" class="label">Producto</label>
                                 </div>
 
                                 <div class="input-field col s12 m3 l2">
-                                    <input type="number" class="center-align rowcantidad" name="txt_cant_product[]" value="0" onclick="extra_prod(this);calcular_total()" onkeyup="extra_prod(this);calcular_total()" min="0" max="99"  required>
+                                    <input type="number" class="center-align rowcantidad" name="txt_cant_product[]" value="0" onclick="extra_prod(this);calcular_total_productos()" onkeyup="extra_prod(this);calcular_total_productos()" min="0" max="99"  required>
                                     <label class="label">Cantidad</label>
                                 </div>
 
                                 <div class="input-field col s12 m12 l2">
                                     <label class="label">Precio</label>
-                                    <input type="text" class="center-align importe_linea" name="txt_precio_product[]" value="0" onkeyup="calcular_total()">
+                                    <input type="text" class="center-align importe_linea_producto" name="txt_precio_product[]" value="0" onkeyup="calcular_total_productos()">
                                     <input type="hidden" name="hidden_precio_product[]">
                                 </div>
                                 
@@ -210,199 +266,88 @@
                             </div>
                             
                             
+                            
                             <div class="col">
-                                <h5>Valores a cancelar</h5>
+                                <h5>Valores a cancelar por productos y servicios: </h5>
                                 
                                 <div class="input-field col s12 l4 offset-l7">
                                     <label class="label">Subtotal</label>
-                                    <input type="text" class="center-align" id="txt_subtotal" name="txt_subtotal" value="0" onkeyup="calcular_total()" readonly>
+                                    <input type="text" class="center-align" id="txt_subtotal_productos" name="txt_subtotal_productos" value="0" onkeyup="calcular_total_productos()" readonly>
                                 </div>
                                 
                                 <div class="input-field col s12 l4 offset-l7">
                                     <label class="label">IVA</label>
-                                    <input type="text" class="center-align" id="txt_iva" name="txt_iva" value="0" onkeyup="calcular_total()" readonly>
+                                    <input type="text" class="center-align" id="txt_iva_productos" name="txt_iva_productos" value="0" onkeyup="calcular_total_productos()" readonly>
                                 </div>
                                 
                                 <div class="input-field col s12 l4 offset-l7">
                                     <label class="label">Total</label>
-                                    <input type="text" class="center-align" id="txt_total" name="txt_total" value="0" onkeyup="calcular_total()" readonly>
+                                    <input type="text" class="center-align" id="txt_total_productos" name="txt_total_productos" value="0" onkeyup="calcular_total_productos()" readonly>
                                 </div>
                                 
                                  <div class="input-field col s12 l4 offset-l7">
                                     <label class="label">Descuento</label>
-                                    <input type="number" class="center-align subtotales" id="txt_descuento"  name="txt_descuento" min="0" max="100" value="0" onclick="calcular_total()" onchange="calcular_total()" onkeyup="calcular_total()">
+                                    <input type="number" class="center-align subtotales" id="txt_descuento_productos"  name="txt_descuento_productos" min="0" max="100" value="0" onclick="calcular_total_productos()" onchange="calcular_total_productos()" onkeyup="calcular_total_productos()">
                                 </div>
                                 
                                 <div class="input-field col s12 l4 offset-l7">
-                                    <label class="label">A pagar</label>
-                                    <input type="text" class="center-align subtotales" id="txt_apagar"  name="txt_apagar" value="0" readonly required="true">
+                                    <label class="label">A pagar por productos & servicios</label>
+                                    <input type="text" class="center-align subtotales" id="txt_apagar_productos"  name="txt_apagar_productos" value="0" readonly required="true">
                                 </div>
-                            </div>    
+                            </div>  
                             
-                            <div class="input-field col s12 m12 center-align">
-                                <button class="btn waves-effect waves-light" type="button" name="action">
-                                   Registrar
-                                </button>
+                            
+                            <div class="col s12 m12 l12">
+                                <h5>Forma de Pago</h5>
+
+                                <div class="col s12 m3 l3">
+                                    <input type="checkbox" class="filled-in" name="chk_efectivo" id="chk_efectivo" onclick="calcular_total_productos();calcular_total_llantas();mensajeRecargo()" value="1"/>
+                                    <label for="chk_efectivo">Efectivo</label>
+                                </div>
+                                <div class="col s12 m3 l3">
+                                    <input type="checkbox" class="filled-in" name="chk_cheque" id="chk_cheque" onclick="calcular_total_productos();calcular_total_llantas();mensajeRecargo()"value="1"/>
+                                    <label for="chk_cheque">Cheque</label>
+                                </div>
+                                
+                                <div class="col s12 m3 l3">
+                                    <input type="checkbox" class="filled-in" name="chk_tarjetaCredito" id="chk_tarjetaCredito" onclick="calcular_total_productos();calcular_total_llantas();mensajeRecargo()" value="1"/>
+                                    <label for="chk_tarjetaCredito">Tarjeta de Credito</label>
+                                </div>
+                                
+                                <div class="col s12 m3 l3">
+                                    <input type="checkbox" class="filled-in" name="chk_credito" id="chk_credito" onclick="calcular_total_productos();calcular_total_llantas();mensajeRecargo()" value="1"/>
+                                    <label for="chk_credito">Credito</label>
+                                </div>
+
+                                
+                            </div>
+                            
+                            <div class="col s12 m12 l12">
+                              <div class="row">
+                                <div class="input-field col s12">
+                                  <textarea id="texta_observacion" name="texta_observacion" class="materialize-textarea" data-length="100"></textarea>
+                                  <label for="textarea1">Comentarios u observaciones</label>
+                                </div>
+                              </div>
+                           
+                          </div>
+                            
+                            
+                            <div class="input-field col s12 m12 center">
+                              <input type="submit" class="btn" name="action" value="Registrar">
                             </div>
                             
                         </div><!-- End row -->
                         
                             
 
-                    </form>
+                </form>
               </div>
             </div>
           </div>
         </div><!-- End of Sign Up Card row -->
         
-     <!-- Modal Generar informe -->
-        <div class="modal fade" id="Modal_Registrar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-          <div class="modal-dialog" role="document">
-              
-              <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h5 class="modal-title" id="myModalLabel">Registrar Nuevo</h5>
-              </div>
-                  
-                   <div class="modal-body">
-                        <div class="tabbable"> <!-- Only required for left/right tabs -->
-                        <ul class="nav nav-tabs">
-                        <li class="active"><a href="#tab1" data-toggle="tab">Nuevo Cliente</a></li>
-                        <li><a href="#tab2" data-toggle="tab">Nuevo Vehiculo</a></li>
-                        <li><a href="#tab3" data-toggle="tab">Extras</a></li>
-                        </ul>
-                        <div class="tab-content">
-                        <div class="tab-pane active" id="tab1">
-                            
-                            <div class="row">
-                                <!-- Resultados de AJAX-->
-                                <div class="resultmodal" style="display:none;">
-                                    <p>Resultados</p>
-                                </div>
-                                
-                                
-                                <form method="GET" id="registrar_ClienteModal" name="registrar_ClienteModal" target="_blank" class="form-inline">
-                                <div class="col-lg-12">
-                                    <div class="form-group col-lg-12">
-                                        <br>
-                                        <input type="text" class="form-control centertext uppercase" id="ruc_modal" maxlength="13" placeholder="Cédula o RUC" required><br>
-                                        <br>
-                                        <input type="text" class="form-control centertext uppercase" id="clientename_modal" maxlength="40" placeholder="Nombres y Apellidos" required><br>
-                                        <br>
-                                        <input type="text" class="form-control centertext uppercase" id="direccion_modal" maxlength="40" placeholder="Dirección" required><br>
-                                        <br>
-                                        <input type="text" class="form-control centertext uppercase" id="telefono_modal" maxlength="40" placeholder="Teléfono" required><br>
-                                        <br>
-                                        <input type="email" class="form-control centertext" id="correo_modal" maxlength="40" placeholder="Correo" required><br>
-                                        <br>
-                                        <div class="row rowspace">
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-info" onclick="registrarCliente()"><span class="glyphicon glyphicon-thumbs-up"></span> Registrar Cliente</button>
-                                                <button type="button" class="btn btn-default" onclick="resetForm('registrar_ClienteModal')"><span class="glyphicon glyphicon-new-window"></span> Nuevo</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> 
-                                </form>    
-                            </div>
-                        
-                  
-                        
-                       
-                         
-                        </div>
-                            
-                         <!-- FIN Sección - INICIO Segundo Label -->    
-                            
-                        <div class="tab-pane" id="tab2">
-                              <div class="row">
-                                <!-- Resultados de AJAX-->
-                                <div class="resultmodal_tab2" style="display:none;">
-                                    <p>Resultados</p>
-                                </div>
-                                
-                                
-                                <form method="GET" id="registrar_VehiculoModal" name="registrar_VehiculoModal" target="_blank" class="form-inline">
-                                <div class="col-lg-12">
-                                    <div class="form-group col-lg-12">
-                                        
-                                        <br>
-                                        <select class="form-control centertext uppercase" name="seleccion_empleado_modal_obs" id="seleccion_cliente_modal" required>
-                                            <option value="">--- Seleccione Cliente ---</option>
-                                            <?php $ordentrabajo->getClientes(); ?>
-                                        </select><br>
-                                        <br>
-                                        <select class="form-control centertext uppercase" name="seleccion_marcaauto_modal" id="seleccion_marcaauto_modal" onchange="ajax_getModelos()" required>
-                                            <option value="">--- Seleccione Marca ---</option>
-                                             <?php $ordentrabajo->getMarcasAutos(); ?>
-                                        </select>
-                                        <br>
-                                        <br>
-                                        <select class="form-control centertext uppercase" name="seleccion_modeloauto_modal" id="seleccion_modeloauto_modal" required>
-                                            <option value="">--- Seleccione Modelo ---</option>
-                                        </select>
-                                        <br>
-                                        <br>
-                                        <input type="text" class="form-control centertext uppercase" id="placas_modal" maxlength="8" placeholder="Placas" onblur="replacePLACA(this.value)" required><br>
-                                        <br>
-                                        <input type="text" class="form-control centertext uppercase" id="anio_modal" maxlength="4" placeholder="Año" required><br>
-                                        <br>
-                                        <input type="text" class="form-control centertext uppercase" id="color_modal" maxlength="15" placeholder="Color" required><br>
-                                        <br>
-                                        <div class="row rowspace">
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-info" onclick="registrarAutoCliente()()"><span class="glyphicon glyphicon-thumbs-up"></span> Registrar Vehiculo</button>
-                                                <button type="button" class="btn btn-default" onclick="resetForm('registrar_VehiculoModal')"><span class="glyphicon glyphicon-new-window"></span> Nuevo</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> 
-                                </form>    
-                            </div>
-                            
-                            
-                        </div>
-                         
-                         <!-- FIN Sección - INICIO Tercer Label -->    
-                            
-                        <div class="tab-pane" id="tab3">
-                              
-                            <form action="" method="GET" target="_blank" class="form-inline">
-                            <div class="row">
-                            <div class="rowspace">
-                                <select class="form-control centertext" name="seleccion_empleado_modal_obs" id="seleccion_empleado_modal_obs" required>
-                                  
-                                </select>
-                            </div>
-                            </div>
-                               
-                         <div class="row rowspace">
-                            <button type="submit" class="btn btn-info"><span class="glyphicon glyphicon-adjust"></span> Asignar</button>
-                        </div>
-                        </form> 
-                            
-                            
-                        </div> 
-                         
-                        </div>
-                        </div>
-                   </div>
-                  
-              
-              <div class="modal-footer">
-                
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                
-                
-              </div>
-              
-            </div>
-            
-          </div>
-        </div>
-                
-  
+    
      <!-- Modal Structure -->
     <div id="modal1" class="modal">
       <div class="modal-content">
@@ -442,9 +387,9 @@
             <i class="large material-icons">mode_edit</i>
         </a>
         <ul>
-            <li><a class="btn-floating teal waves-effect waves-light modal-trigger" href="#modal1" title="Registrar nuevo"><i class="material-icons">note_add</i></a></li>
-            <li><a class="btn-floating green" id="btn_add_producto" onclick="add_row()" title="Agregar Producto"><i class="material-icons">playlist_add</i></a></li>
-            <li><a class="btn-floating green" id="btn_add_producto" onclick="" title="Test Function"><i class="material-icons">playlist_add</i></a></li>
+            <li><a class="btn-floating blue" id="btn_add_producto" onclick="add_row_llantas()" title="Agregar Llantas"><i class="material-icons">directions_car</i></a></li>
+            <li><a class="btn-floating green" id="btn_add_producto" onclick="add_row()" title="Agregar Producto"><i class="material-icons">card_travel</i></a></li>
+            <li><a class="btn-floating gray-bg" id="btn_add_producto" onclick="" title="Test Function"><i class="material-icons">bug_report</i></a></li>
             
         </ul>
     </div>

@@ -11,15 +11,6 @@ class ajaxModel  {
         $this->instancia_cnx = $instanciaLista;
     }
 
-    function getAllDocumentsByTipeDoc($RUC, $fecha_INI, $fecha_FIN,  $tipoDOC){
-        $query = ("SELECT A.*, B.nombre as ClienteN FROM tbl_transaccion as A INNER JOIN tbl_cliente as B ON A.ruc = B.ruc WHERE A.ruc = '$RUC'  AND a.tipo='$tipoDOC' AND A.fecha BETWEEN '$fecha_INI' AND '$fecha_FIN' LIMIT 10");
-        $stmt = $this->instancia_cnx->query($query);
-        $stmt->execute();
-        return $resultset = $stmt->fetchAll();
-        
-        
-    }
-    
 
     public function getJSONProducto($cod_ingresado) {
         $statment = $this->instancia_cnx->query("SELECT * FROM productosservicios WHERE detalle='$cod_ingresado'");
@@ -42,6 +33,29 @@ class ajaxModel  {
         }
 
     }
+    
+    public function getJSONLlantas($cod_ingresado) {
+        $statment = $this->instancia_cnx->query("SELECT * FROM llantas WHERE detalle = '$cod_ingresado'");
+        $resultset = $statment->fetchAll();
+
+        if (($resultset)){
+            foreach ($resultset as $row){
+                $codigo = $row['cod_llanta'];
+                $producto = $row['detalle'];
+                $valor = $row['valor'];
+
+            }
+            $rawdata = array(["codigo"=>$codigo, "producto"=>$producto, "valor"=>$valor]);
+            return json_encode($rawdata);  
+
+        }else{
+            $rawdata = ""; 
+            return json_encode($rawdata);  
+
+        }
+
+    }
+    
     
     
     public function getJSONCliente($cod_ingresado) {
@@ -81,7 +95,21 @@ class ajaxModel  {
 
         }
 
-   
+    }
+    
+    public function getJSONAllNeumaticos() {
+        $statment = $this->instancia_cnx->query("SELECT detalle as name FROM llantas");
+        $resultset = $statment->fetchAll();
+
+        if (($resultset)){
+             echo json_encode($resultset);  
+
+        }else{
+            $rawdata = ""; 
+            echo json_encode($rawdata);  
+
+        }
+
     }
     
     

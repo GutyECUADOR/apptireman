@@ -26,8 +26,8 @@ class conexion {
         $this->host = "127.0.0.1";
         $this->port = "3306";
         $this->user = "root";
-        $this->pass = "admin";
-        $this->dbname = "kaosport_kindred";
+        $this->pass = "";
+        $this->dbname = "apptireman";
         $this->charset = "utf8";
       
     }

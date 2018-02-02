@@ -14,16 +14,23 @@ class loginModel  {
     public function validaIngreso($arrayDatos){
         $usuario = $arrayDatos['usuario'];
         $password = $arrayDatos['password'];
-        $query = "SELECT *from tbl_cliente WHERE ruc = :ruc AND password = :password"; 
+        $query = "SELECT * from tbl_usuarios WHERE usuario = :usuario AND password = :password"; 
         $stmt = $this->instancia_cnx->prepare($query); 
-        $stmt->bindParam(':ruc', $usuario); 
+        $stmt->bindParam(':usuario', $usuario); 
         $stmt->bindParam(':password', $password); 
         $stmt->execute(); 
-       
-        $resulset = $stmt->fetchAll();
-        return $resulset;
+        $rowAfected = $stmt->rowCount(); 
+        
+        if($rowAfected==1){ 
+            return $stmt->fetch();
+            }else{
+            return FALSE;    
+            }
            
         
     }
     
+    public function testFunction() {
+        echo "Funcionando";
+    }
 }

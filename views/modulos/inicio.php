@@ -1,166 +1,187 @@
-<?php 
-    if (!isset($_SESSION["usuarioRUC"])){
-           header("Location:index.php?&action=login");  
-        } 
-  
-    
+<?php
+$ordentclass = new models\OrdentModel();
+$licencia = new controllers\licenciaController();
+$licencia->enableSegurity('inicio');
+
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <!-- Meta, title, CSS, favicons, etc. -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="icon" href="images/favicon.ico" type="image/ico" />
+<?php include_once 'views/modulos/navtabs.php';?>
 
-    <!-- Bootstrap -->
-    <link href="<?php echo ROOT_PATH; ?>assets/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="<?php echo ROOT_PATH; ?>assets/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-    <!-- NProgress -->
-    <link href="<?php echo ROOT_PATH; ?>assets/nprogress/nprogress.css" rel="stylesheet">
-    <!-- iCheck -->
-    <link href="<?php echo ROOT_PATH; ?>assets/iCheck/skins/flat/green.css" rel="stylesheet">
-	
-    <!-- bootstrap-progressbar -->
-    <link href="<?php echo ROOT_PATH; ?>assets/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
-    <!-- JQVMap -->
-    <link href="<?php echo ROOT_PATH; ?>assets/jqvmap/dist/jqvmap.min.css" rel="stylesheet"/>
-    
-    <!-- bootstrap-daterangepicker -->
-    <link href="<?php echo ROOT_PATH; ?>assets/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
-    <!-- bootstrap-datetimepicker -->
-    <link href="<?php echo ROOT_PATH; ?>assets/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css" rel="stylesheet">
-    <!-- Custom Theme Style -->
-    <link href="<?php echo ROOT_PATH; ?>assets/build/css/custom.css" rel="stylesheet">
-  </head>
-
-  <body class="nav-md">
-    <div class="container body">
-      <div class="main_container">
-        <div class="col-md-3 left_col">
-          <div class="left_col scroll-view">
-            <div class="navbar nav_title" style="border: 0;">
-              <a href="#" class="site_title"><i class="fa fa-user"></i> <span>KAO Sport</span></a>
-            </div>
-
-            <div class="clearfix"></div>
-
-            <!-- menu profile quick info -->
-            <div class="profile clearfix">
-              <div class="profile_pic">
-                <img src="<?php echo ROOT_PATH; ?>assets/images/user.png" alt="..." class="img-circle profile_img">
-              </div>
-              <div class="profile_info">
-                <span>Bienvenido,</span>
-                <h2><?php echo ucwords(strtolower($_SESSION['usuarioNOMBRE'])) ?></h2>
-              </div>
-            </div>
-            <!-- /menu profile quick info -->
-
-            <br />
-
-            <!-- sidebar menu -->
-            <?php include_once('sis_modules/sidebar.php')?>
-            <!-- /sidebar menu -->
-
-            <!-- /menu footer buttons -->
-            <?php include_once('sis_modules/menu_footer.php')?>
-            <!-- /menu footer buttons -->
-          </div>
-        </div>
-
-        <!-- top navigation -->
-        <?php include 'sis_modules/top_navigation.php'?>
-        <!-- /top navigation -->
-
-        <!-- page content -->
-        <div class="right_col" role="main">
-          <!-- top tiles -->
-          
-          <!-- /top tiles -->
-
-          <div class="row">
-           
-            <div class="col-md-12 col-sm-12 col-xs-12">
-
-
-
-              <div class="row">
-
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                  <div class="x_panel">
-                    <div class="x_title">
-                      <h2>Bienvenido <small>Bandeja de Inicio</small></h2>
+<!-- Contenido de tab 1-->
+        <div class="container spa">
+            <div id="ultimasventas">
+            <div class="row">
+                <?php foreach ($ordentclass->getTOP10ordenesT() as $row) {?>
+                <div class="col s12 m4 l4">
+                    <div class="card hoverable">
+                        <div class="card-image">
+                            <?php
+                                $rutaIMG = "./core/resources/evidenciaEstado/ev".$row['codOrden']."_1.jpg";
+                                if(file_exists($rutaIMG)){
+                                    echo '<img src="'.$rutaIMG.'">';
+                                }else{
+                                    echo '<img src="./core/resources/draweable/imges/logo.jpg">';
+                                }
+                            ?>
+                            
+                        </div>
+                        
                       
-                      <div class="clearfix"></div>
-                      <p>Si necesita consultar sus <code>Facturas, Notas de Crèdito, etc</code> haga clic en el <code>menú lateral (E-Docs)</code>.</p>
- 
+                        
+                            <div class="card-content">
+                                <p><b><?php echo $row['codOrden'];
+                                        if ($row['estado'] == 1){
+                                            echo '(Anulada)';
+                                        }
+                                        ?></b></span>
+                                <p>RUC: <?php echo $row['cliente'] ?></p>
+                                <p>$ Llantas: $<?php echo $row['valorLlantas'] ?></p>
+                                <p>$ Productos: $<?php echo $row['valorProductos'] ?></p>
+                                <p>Fecha: <?php echo $row['fecha'] ?></p>
+                                
+                            </div>
+                            <div class="card-action center-align">
+                                <a href="#" id="<?php echo $row['codOrden'] ?>" onclick="fn_genreport(this)">Revisar</a>
+                            </div>
+                        
                     </div>
-                    
-                    <div class="x_content">
-
-                  
- 
-                  		
-						
-                    </div>
-                    
-                  </div>
                 </div>
+                <?php }?>
+                
+            </div> 
+               
+            <!-- Floating Button -->
+                <div class="fixed-action-btn horizontal">
+                    <a class="btn-floating btn-large red waves-effect waves-light" href="?action=ordenTrabajo">
+                      <i class="large material-icons">shopping_cart</i>
+                    </a>
+                </div>
+            </div> <!-- Fin del tab-->
+        </div>
 
+
+<!-- Contenido de tab 2-->
+        <div class="spa">
+            <div id="ultimasventasLista">
+                <div class="row">
+                    <div class="col s12 m12">
+                    <div class="card">
+                      <div class="card-content">
+                        <span class="card-title center-align"><h5>Ordenes de Trabajo</h5></span>
+                            <form autocomplete="off">
+                                <div class="row responsibetable">
+
+                                    <table class="striped centered">
+                                        <thead>
+                                          <tr>
+                                              <th>Codigo</th>
+                                              <th>Asesor</th>
+                                              <th>Mecanico</th>
+                                              <th>Cliente</th>
+                                              <th>Fecha</th>
+                                              <th>Vehiculo</th>
+                                              <th>LLantas</th>
+                                              <th>Productos</th>
+                                          </tr>
+                                        </thead>
+                                            <tbody>
+                                            
+
+                                                <?php foreach ($ordentclass->getTOP100ordenesT() as $row) {?>
+                                                <tr>
+                                                  <td><?php echo $row['codOrden'] ?></td>
+                                                  <td><?php echo $row['empleado'] ?></td>
+                                                  <td><?php echo $row['empleadoN'] ?></td>
+                                                  <td><?php echo $row['clienteN'] ?></td>
+                                                  <td><?php echo $row['fecha'] ?></td>
+                                                  <td><?php echo $row['automovil'] ?></td>
+                                                  <td><?php echo $row['valorLlantas'] ?></td>
+                                                  <td><?php echo $row['valorProductos'] ?></td>
+                                                  
+                                                  <?php 
+                                                   if (isset($_SESSION["lv_acceso"]) && $_SESSION["lv_acceso"] >= LV_ACCESO_EDITORT){
+                                                  ?>
+                                                   <!-- Dropdown Trigger -->
+                                                   <td><a class='dropdown-button btn' href='#' data-activates='dropdown<?php echo $row['codOrden']?>'>Acciones</a></td>
+
+                                                    <!-- Dropdown Structure -->
+                                                    <ul id='dropdown<?php echo $row['codOrden']?>' class='dropdown-content'>
+                                                      <li><a href="#!" id="<?php echo $row['codOrden']?>" onclick="fn_genreport(this)">Revisar</a></li>
+                                                      <li><a href="?action=editaOrden&codOrden=<?php echo $row['codOrden']?>" id="<?php echo $row['codOrden']?>" >Editar</a></li>
+                                                      <li><a href="#!" id="<?php echo $row['codOrden']?>" onclick="anularOrdenT(this)">Anular</a></li>
+                                                     
+                                                    </ul>
+                                                  <?php
+                                                    }else{ 
+                                                  ?>
+                                                  <td><a href="#" id="<?php echo $row['codOrden'] ?>" onclick="fn_genreport(this)">Revisar</a></td>
+                                                  <?php 
+                                                    }      
+                                                   ?>
+                                                  </tr>
+                                                <?php }?>
+                                            </tbody> 
+                                            
+                                        </div>
+                                        
+                                        
+                                    </table>
+
+                                </div>
+                            </form>
+                      </div>
+                    </div>
+                  </div>
+        </div><!-- End of Sign Up Card row -->
+            
+            </div> <!-- Fin del tab-->
+        </div>
+        
+        
+<!-- Contenido de tab 3-->
+<div class="spa">
+    <div id="busquedaLista">
+        <div class="row">
+            <div class="col s12 m12">
+            <div class="card">
+              <div class="card-content">
+                <span class="card-title center-align"><h5>Busqueda de Ordenes de Trabajo</h5></span>
+                    <form autocomplete="off">
+                        <div class="row">
+
+                            <div class="row">
+                                <div class="input-field col s12 m9 l10">
+                                   <input id="txt_busqueda" type="number">
+                                   <label for="txt_busqueda" data-error="No cumple" >Cédula de Cliente</label>
+                               </div>
+
+                               <div class="input-field col s12 m3 l2 center-align">
+                                   <button class="btn waves-effect waves-light" type="button" onclick="ajax_searchOrdenesTrabajo()">Buscar</button>
+                               </div>
+
+                               <div class="input-field col s12 m6 l6">
+                                   <input id="txt_fechaINI" type="text" class="datepicker">
+                                   <label for="txt_fechaINI" data-error="No cumple" >Fecha de Inicio</label>
+                               </div>
+
+                               <div class="input-field col s12 m6 l6">
+                                   <input id="txt_fechaFIN" type="text" class="datepicker">
+                                   <label for="txt_fechaFIN" data-error="No cumple" >Fecha Final</label>
+                               </div>
+                            </div>
+
+                            <div class="containerajax responsibetable" id="containerajax">
+
+                            </div>
+                            
+                            
+                        </div>
+                    </form>
               </div>
-              
             </div>
           </div>
-        </div>
-        <!-- /page content -->
+    </div><!-- End of Sign Up Card row -->
 
-        <!-- footer content -->
-        <footer>
-          <div class="pull-right">
-            Gentelella - Bootstrap Admin Template.
-          </div>
-          <div class="clearfix"></div>
-        </footer>
-        <!-- /footer content -->
-      </div>
-    </div>
+    </div> <!-- Fin del tab-->
+</div>
 
-    
-     <!-- jQuery -->
-    <script src="<?php echo ROOT_PATH; ?>assets/jquery/dist/jquery.min.js"></script>
-    <!-- Bootstrap -->
-    <script src="<?php echo ROOT_PATH; ?>assets/bootstrap/dist/js/bootstrap.min.js"></script>
-    <!-- FastClick -->
-    <script src="<?php echo ROOT_PATH; ?>assets/fastclick/lib/fastclick.js"></script>
-    <!-- NProgress -->
-    <script src="<?php echo ROOT_PATH; ?>assets/nprogress/nprogress.js"></script>
-    <!-- bootstrap-daterangepicker -->
-    <script src="<?php echo ROOT_PATH; ?>assets/moment/min/moment.min.js"></script>
-    <script src="<?php echo ROOT_PATH; ?>assets/bootstrap-daterangepicker/daterangepicker.js"></script>
-    <!-- bootstrap-datetimepicker -->    
-    <script src="<?php echo ROOT_PATH; ?>assets/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-    <!-- Ion.RangeSlider -->
-    <script src="<?php echo ROOT_PATH; ?>assets/ion.rangeSlider/js/ion.rangeSlider.min.js"></script>
-    <!-- Bootstrap Colorpicker -->
-    <script src="<?php echo ROOT_PATH; ?>assets/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
-    <!-- jquery.inputmask -->
-    <script src="<?php echo ROOT_PATH; ?>assets/jquery.inputmask/dist/min/jquery.inputmask.bundle.min.js"></script>
-    <!-- jQuery Knob -->
-    <script src="<?php echo ROOT_PATH; ?>assets/jquery-knob/dist/jquery.knob.min.js"></script>
-    <!-- Cropper No Supported -->
-    
-    <!-- Custom Theme Scripts -->
-    <script src="<?php echo ROOT_PATH; ?>assets/build/js/custom.min.js"></script>
-     
-    <!-- Estilos Personalizados extra -->
-    <script src="<?php echo ROOT_PATH; ?>assets/functions.js"></script>
-    
-    
-    
-  </body>
-</html>

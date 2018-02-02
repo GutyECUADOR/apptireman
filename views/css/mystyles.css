@@ -1,0 +1,40 @@
+    header, main, footer {
+      padding-left: 300px;
+    }
+    
+    .uppercase{
+    text-transform:uppercase;
+    }
+    
+    .mayusculas{text-transform:uppercase;}
+
+    .wrap {
+        width: 40%;
+    }
+    
+    .txtseccion{
+         
+          padding: 5px;
+	  margin: auto;
+          text-align: center;
+          font-weight: bold;
+          background: #303766;
+          color: #fff;
+          box-shadow: 0px 0px 1px grey;
+          margin-bottom:  18px;
+	 }
+    
+    .responsibetable{
+     overflow:scroll;
+}     
+         
+    @media only screen and (max-width : 992px) {
+      header, main, footer {
+        padding-left: 0;
+      }
+      
+    .wrap {
+        width: 90%;
+    }
+      
+    }

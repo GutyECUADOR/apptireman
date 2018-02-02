@@ -1,5 +1,6 @@
 <?php
-
+    $licencia = new controllers\licenciaController();
+    $licencia->enableSegurity('agregarProducto');
 
 ?>
 
@@ -11,11 +12,11 @@
             <div class="card">
               <div class="card-content">
                 <span class="card-title center-align"><h5>Registro de Productos</h5></span>
-                    <form class="container" autocomplete="off">
+                    <form class="container" autocomplete="off" id="registrar_Producto" name="registrar_Producto">
                         <div class="row">
 
                             <div class="input-field col s12 m6 l4">
-                                <input class="mayusculas" id="txt_codReferencial" type="text" data-length="6"  required  autofocus>
+                                <input class="mayusculas" id="txt_codReferencial" type="text" data-length="6" maxlength='6' required  autofocus>
                                 <label for="txt_codReferencial" data-error="No cumple" >Código Referencial</label>
                             </div>
                             <div class="input-field col s12 m6 l8">
@@ -39,8 +40,11 @@
                             </div>
                             
                             <div class="input-field col s12 m12 center-align">
-                                <button class="btn waves-effect waves-light" type="button" name="action">
+                                <button class="btn waves-effect waves-light" type="button" name="action" onclick="registrarProducto()">
                                    Registrar <i class="material-icons right">send</i>
+                                </button>
+                                <button class="btn waves-effect waves-light red darken-4" type="button" onclick="resetForm('registrar_Producto')">
+                                   Cancelar <i class="material-icons right"></i>
                                 </button>
                             </div>
 
